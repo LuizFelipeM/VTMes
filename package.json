@@ -1,0 +1,60 @@
+{
+  "name": "vtmes",
+  "version": "1.0.0",
+  "description": "Message Oriented Middleware",
+  "main": "server.ts",
+  "scripts": {
+    "lint": "eslint . --ext .ts",
+    "test": "jest",
+    "start": "node --inspect=5858 -r ts-node/register -r dotenv-safe/config ./src/server.ts",
+    "dev": "nodemon"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LuizFelipeM/VTMes.git"
+  },
+  "keywords": [
+    "Messaging",
+    "MOM",
+    "Message",
+    "Oriented",
+    "Middleware"
+  ],
+  "author": "Luiz Felipe Muniz Moura",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/LuizFelipeM/VTMes/issues"
+  },
+  "homepage": "https://github.com/LuizFelipeM/VTMes#readme",
+  "devDependencies": {
+    "@types/cors": "^2.8.6",
+    "@types/dotenv-safe": "^8.1.0",
+    "@types/express": "^4.17.6",
+    "@types/redis": "^2.8.20",
+    "@typescript-eslint/eslint-plugin": "^2.33.0",
+    "@typescript-eslint/parser": "^2.33.0",
+    "eslint": "^7.0.0",
+    "nodemon": "^2.0.4",
+    "ts-node": "^8.10.1",
+    "typescript": "^3.9.2"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv-safe": "^8.2.0",
+    "express": "^4.17.1",
+    "redis": "^3.0.2"
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "**/*.test.ts",
+      "**/*.spec.ts",
+      ".git",
+      "node_modules"
+    ],
+    "watch": [
+      "src"
+    ],
+    "exec": "npm start",
+    "ext": "ts"
+  }
+}
