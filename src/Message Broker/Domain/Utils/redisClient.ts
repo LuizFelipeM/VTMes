@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/camelcase */
+import { promisify } from "util";
 import { createClient, ClientOpts } from "redis";
 
 const options: ClientOpts = {
@@ -11,4 +12,6 @@ const redisClient = createClient(options);
 
 redisClient.on('error', (err) => console.error(err));
 
-export default redisClient;
+const publish = promisify(redisClient.PUBLISH).bind(redisClient);
+
+export { redisClient, publish };
