@@ -1,12 +1,12 @@
 import { Router, Request, Response } from 'express';
-import opt from './Operators/test';
+import agents from './Agent/test';
 
 const routes = Router();
 
-routes.get('/operators', (req: Request, res: Response) => {
-    opt()
-    res.json(req.body)
-})
+routes.get('/agent', (req: Request, res: Response) => {
+    agents();
+    res.status(204).send();
+});
 
 routes.post('/echo', (req: Request, res: Response): Response<unknown> => {
     console.log('echo req body', Buffer.from(req.body?.content?.data).toString('utf-8'));

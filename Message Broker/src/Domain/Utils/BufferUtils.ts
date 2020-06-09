@@ -2,7 +2,6 @@ function decimalToBinary(dec: number): string {
     return (dec >>> 0).toString(2);
 }
 
-// function getBufferSize(data: string | Buffer | number): number {
 function getBufferSize(data: string | number | Buffer): number {
     let dataSize: string | Buffer;
 
@@ -16,4 +15,8 @@ function getBufferSize(data: string | number | Buffer): number {
     return size
 }
 
-export default getBufferSize;
+function dataToBuffer(data: string | number | Buffer): Buffer {
+    return Buffer.alloc(getBufferSize(data), data);
+}
+
+export { dataToBuffer, getBufferSize, decimalToBinary };
