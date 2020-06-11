@@ -3,17 +3,19 @@ import RabbitMQ from '../Utils/RabbitMQ';
 import { ConsumeMessage } from 'amqplib';
 
 type Configuration = {
+    agentName: string;
     host: string;
     endpoint: string;
+    queueName: string;
     dataType: 'xml' | 'json';
     port?: number;
     maxMsg?: number;
-    queueName?: string;
 }
 
 class Agent {
+    name: string;
     port = 8080;
-    queueName = String(process.env.DEFAULT_QUEUE_NAME);
+    queueName: string;
     host: string;
     endpoint: string;
     dataType: 'xml' | 'json';
@@ -21,19 +23,22 @@ class Agent {
 
     constructor(config: Configuration) {
         this.Rabbit = new RabbitMQ();
-
+        
         this.Rabbit.channel?.prefetch(config.maxMsg ?? 1)
-
+        
+        this.name = config.agentName;
         this.host = config.host;
         this.endpoint = config.endpoint;
         this.dataType = config.dataType;
         
         this.port = config.port ?? this.port;
-        this.queueName = config.queueName ?? this.queueName;
+        this.queueName = config.queueName;
     }
 
-    async consume(): Promise<unknown> {
+    async consume(): Promise<Buffer | undefined> {
         let incomingMessage: Buffer | undefined;
+
+        console.log('consume');
 
         const option: http.RequestOptions = {
             host: this.host,

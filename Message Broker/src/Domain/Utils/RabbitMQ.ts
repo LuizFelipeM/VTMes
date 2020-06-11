@@ -1,10 +1,10 @@
 import amqp, { Channel, Connection } from 'amqplib';
 
 class RabbitMQ {
-    connection: Connection | undefined;
-    channel: (Channel | undefined);
+    connection = {} as Connection;
+    channel = {} as Channel;
 
-    constructor() {
+    constructor() {        
         this.connect();
         process.on('exit', () => this.connection?.close());
     }

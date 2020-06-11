@@ -2,7 +2,7 @@ import amqp, { Channel, Connection } from 'amqplib';
 
 class RabbitMQ {
     connection: Connection | undefined;
-    channel: (Channel | undefined);
+    channel: Channel | undefined;
 
     constructor() {
         this.connect();

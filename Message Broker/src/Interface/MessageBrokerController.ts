@@ -15,8 +15,8 @@ const MessageBrokerController = {
     },
 
     publishMessage(req: Request, res: Response): Response<void> {
-        const { queueName, exchange, topic, payload } = req.body;
-        const resp = MQService.pushToQueue(queueName, exchange, topic, payload);
+        const { producerName, topic, payload } = req.body;
+        const resp = MQService.pushToQueue(producerName, topic, payload);
 
         if(resp) return res.status(204).send();
         
