@@ -26,8 +26,7 @@ const MQService: MQServiceInter = {
 
     async pushToQueue(producerName: string, topic: string, payload: unknown): Promise<boolean> {
         const exchange = producerName;
-
-        return RabbitMQ.channel.publish(exchange, topic, dataToBuffer(JSON.stringify(payload))) as boolean;
+        return RabbitMQ.channel.publish(exchange, topic, dataToBuffer(JSON.stringify(payload)));
     }
 }
 

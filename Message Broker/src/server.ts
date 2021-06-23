@@ -2,6 +2,9 @@ import cors from 'cors';
 import express from 'express';
 
 import routes from './routes';
+import startup from './startup';
+
+startup();
 
 const app = express();
 

@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import MQService from '../Service/MQService';
+import MessagesSchema from '../Data Access/MessagesSchema';
 
 const MessageBrokerController = {
     allocateProducer(req: Request, res: Response): Response<unknown> {
@@ -14,9 +15,11 @@ const MessageBrokerController = {
         }
     },
 
-    publishMessage(req: Request, res: Response): Response<void> {
-        const { producerName, topic, payload } = req.body;
-        const resp = MQService.pushToQueue(producerName, topic, payload);
+    async publishMessage(req: Request, res: Response): Promise<Response<void>> {
+        const { producerName, topic, payload, headers } = req.body;
+
+        MessagesSchema.create({ producerName, topic, payload, headers });
+        const resp = await MQService.pushToQueue(producerName, topic, payload);
 
         if(resp) return res.status(204).send();
         

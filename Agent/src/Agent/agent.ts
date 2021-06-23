@@ -1,6 +1,7 @@
-import http from 'http';
-import RabbitMQ from '../Utils/RabbitMQ';
-import { ConsumeMessage } from 'amqplib';
+import http from 'http'
+import { Worker, parentPort } from 'worker_threads'
+import amqp, { Connection, Channel, ConsumeMessage, Message } from 'amqplib'
+import { mquery } from 'mongoose'
 
 type Configuration = {
     agentName: string;
@@ -13,57 +14,82 @@ type Configuration = {
 }
 
 class Agent {
-    name: string;
-    port = 8080;
-    queueName: string;
-    host: string;
-    endpoint: string;
-    dataType: 'xml' | 'json';
-    Rabbit: RabbitMQ;
+    name: string
+    private port = 8080
+    private queueName: string
+    private host: string
+    private endpoint: string
+    private dataType: 'xml' | 'json'
 
     constructor(config: Configuration) {
-        this.Rabbit = new RabbitMQ();
+        // channel.prefetch(config.maxMsg ?? 1)
+
+        console.log('criado')
         
-        this.Rabbit.channel?.prefetch(config.maxMsg ?? 1)
+        this.name = config.agentName
+        this.host = config.host
+        this.endpoint = config.endpoint
+        this.dataType = config.dataType
         
-        this.name = config.agentName;
-        this.host = config.host;
-        this.endpoint = config.endpoint;
-        this.dataType = config.dataType;
-        
-        this.port = config.port ?? this.port;
-        this.queueName = config.queueName;
+        this.port = config.port ?? this.port
+        this.queueName = config.queueName
     }
 
-    async consume(): Promise<Buffer | undefined> {
-        let incomingMessage: Buffer | undefined;
+    async consume(callback: (message: ConsumeMessage | null) => void): Promise<void> {
+        // const option: http.RequestOptions = {
+        //     host: this.host,
+        //     path: this.endpoint,
+        //     port: this.port,
+        //     method: 'POST',
+        //     headers: { 'Content-Type': `application/${this.dataType}` }
+        // }
 
-        console.log('consume');
+        const MQ = await MQConnectionAndChannel()
 
-        const option: http.RequestOptions = {
-            host: this.host,
-            path: this.endpoint,
-            port: this.port,
-            method: 'POST',
-            headers: {
-                'Content-Type': `application/${this.dataType}`,
-            }
-        };
+        await MQ.channel.consume(this.queueName, callback)
 
-        await this.Rabbit.channel?.consume(this.queueName, (msg: ConsumeMessage | null) => {
-            incomingMessage = msg?.content
+            // .then(({ channel }) => channel.consume(this.queueName, callback))
+            // .catch((err: unknown) => parentPort?.postMessage(err))
+            // .finally(() => {
+            //     console.log('finally')
+            // })
 
-            const req = http.request(option, (res: http.IncomingMessage): void => {
-                res.setEncoding('utf-8');
-                res.on('data', (chunk: unknown) => console.log(`data chunk of endpoint ${this.endpoint}`, chunk));
-            });
+        //     const req = http.request(option, (res: http.IncomingMessage): void => {
+        //         res.setEncoding('utf-8');
+        //         res.on('data', (chunk: unknown) => console.log(`data chunk of endpoint ${this.endpoint}`, chunk));
+        //     });
 
-            req.write(JSON.stringify(msg));
-            req.end();
-        });
+        //     req.write(JSON.stringify(msg));
+        //     req.end();
+        // });
+    }
 
-        return incomingMessage;
+    async acknowledgement(message: Message): Promise<void> {
+        console.log('ack chamado')
+        const MQ = await MQConnectionAndChannel()
+
+        MQ.channel.ackAll()
+
+        parentPort?.postMessage(true)
+            // .then(({ channel }) => channel.ack(message))
     }
 }
 
-export { Agent, Configuration };
+interface MessageQueueData {
+    connection: Connection,
+    channel: Channel,
+}
+
+async function MQConnectionAndChannel(): Promise<MessageQueueData> {
+    const connection = await amqp.connect(String(process.env.RABBIT_URL))
+    const channel = await connection.createChannel()
+
+    process.on('exit', () => connection.close())
+
+    return {
+        connection,
+        channel
+    }
+}
+
+export { Agent, Configuration }
